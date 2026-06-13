@@ -6,7 +6,11 @@ Tests all motion control functionality
 """
 
 import sys
+import os
 import time
+
+# Add src directory to path so we can import robot_bridge
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 
 def test_connection():
