@@ -1,0 +1,133 @@
+# Python environments
+venv_py27/
+venv_py3/
+env/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Test results and artifacts
+results/
+*.log
+test_results.txt
+TEST_RESULTS_SUMMARY.txt
+phase0_results/
+test_output/
+.coverage
+htmlcov/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.project
+.pydevproject
+.settings/
+*.sublime-workspace
+*.sublime-project
+
+# OS specific
+Thumbs.db
+.DS_Store
+.AppleDouble
+.LSOverride
+*.bak
+*.tmp
+
+# NAO and Robot files
+*.blend
+*.blend1
+*.bak
+pynaoqi*/
+nao_*/
+
+# Temporary development files
+temp/
+tmp/
+test_*/
+debug/
+*.backup
+
+# Python-specific
+.pytest_cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+site-packages/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Configuration secrets
+.env
+.env.local
+config/.env
+config/*.local
+credentials.json
+secrets.json
+
+# Build artifacts
+*.o
+*.a
+*.so
+.so/
+
+# Node modules (if needed for dashboard)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Documentation builds
+docs/_build/
+docs/.doctrees/
+
+# Miscellaneous
+*.db
+*.sqlite
+*.sqlite3
+.cache/
+*.cache
+.vscode-server/
+
+# Lock files (optional - uncomment if you want to track them)
+# poetry.lock
+# Pipfile.lock
+
+# Robot-specific
+*.blend
+*.blend1
+assets/
+robot_assets/
+models/
+model_cache/
+
+# Old backup files
+*.old
+*.bak
+*.backup
+recovered_*
+extract_*
