@@ -47,7 +47,7 @@ def test_postures():
     try:
         from robot_bridge import MotionBridge
 
-        bridge = MotionBridge()
+        bridge = MotionBridge(ip='192.168.137.87')
 
         postures = [
             ('stand', 'Standing'),
@@ -78,7 +78,7 @@ def test_walking():
     try:
         from robot_bridge import MotionBridge
 
-        bridge = MotionBridge()
+        bridge = MotionBridge(ip='192.168.137.87')
 
         # Ensure standing
         print("Preparing: Standing...")
@@ -116,7 +116,7 @@ def test_joint_control():
         from robot_bridge import MotionBridge
         import math
 
-        bridge = MotionBridge()
+        bridge = MotionBridge(ip='192.168.137.87')
 
         print("Testing: Head movement...")
 
@@ -157,7 +157,7 @@ def test_stiffness():
     try:
         from robot_bridge import MotionBridge
 
-        bridge = MotionBridge()
+        bridge = MotionBridge(ip='192.168.137.87')
 
         print("Testing: Set stiffness to 1.0 (stiff)...")
         bridge.stiffen()
@@ -187,7 +187,7 @@ def test_status():
     try:
         from robot_bridge import MotionBridge
 
-        bridge = MotionBridge()
+        bridge = MotionBridge(ip='192.168.137.87')
 
         print("Testing: Get robot status...")
         status = bridge.get_robot_status()
