@@ -16,8 +16,9 @@
 - ✅ LED Control Test - RGB control working
 
 ### Robot Status
-- **IP:** 169.254.175.171
-- **Connection:** LAN (wired, stable)
+- **LAN IP:** 169.254.175.171 (wired, stable)
+- **WiFi IP:** 192.168.137.87 (wireless, stable) ✨ NEW!
+- **Connection Method:** Web interface (robot.local)
 - **NAOqi:** 2.8.6.23 (Python 2.7)
 - **Baseline:** Established and documented
 
@@ -43,6 +44,13 @@
    - Set up organized folder structure
    - Created Phase 1 README and documentation
    - Established session tracking (this file)
+
+4. ✅ **WiFi Connection** (New!)
+   - Successfully connected robot to WiFi
+   - Connection method: Web interface (robot.local)
+   - WiFi IP: 192.168.137.87
+   - Connection verified as stable
+   - Now supports both LAN and WiFi connectivity
 
 ---
 
