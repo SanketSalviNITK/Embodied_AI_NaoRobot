@@ -1,54 +1,75 @@
 @echo off
-REM NAOqi Python 2.7 Test Runner for Windows
-REM This script sets PYTHONPATH and runs the tests
+REM NAOqi Python 2.7 Test Runner for Windows (Using Virtual Environment)
+REM This script activates venv_py27 and runs the tests
 
 echo.
 echo ======================================================================
-echo NAOqi Python 2.7 Test Suite
+echo NAOqi Python 2.7 Test Suite (Using Virtual Environment)
 echo ======================================================================
 echo.
 
-REM Set PYTHONPATH to include NAOqi SDK
-set PYTHONPATH=%CD%\pynaoqi-python2.7-2.8.6.23-win64-vs2015-20191127_152649\lib;%PYTHONPATH%
-
-echo Python Path: %PYTHONPATH%
-echo.
-
-REM Check if python2.7 is available
-python2.7 --version >nul 2>&1
-if errorlevel 1 (
-    echo ERROR: python2.7 not found!
+REM Check if venv_py27 exists
+if not exist "%CD%\venv_py27" (
+    echo ERROR: Python 2.7 virtual environment not found!
     echo.
-    echo Please ensure Python 2.7 is installed and available in PATH
-    echo You can download Python 2.7 from: https://www.python.org/downloads/
+    echo Virtual environment not found at: %CD%\venv_py27
+    echo.
+    echo Please run setup_python_environments.bat first to create the environment:
+    echo   %CD%\setup_python_environments.bat
     echo.
     pause
     exit /b 1
 )
 
-echo Checking NAOqi SDK availability...
-python2.7 -c "from naoqi import ALProxy; print('NAOqi SDK: OK')" >nul 2>&1
+echo Activating Python 2.7 virtual environment...
+call "%CD%\venv_py27\Scripts\activate.bat"
+
 if errorlevel 1 (
-    echo ERROR: NAOqi SDK not properly installed!
-    echo.
-    echo PYTHONPATH is set to:
-    echo %PYTHONPATH%
-    echo.
-    echo If NAOqi is in a different location, edit this script.
+    echo ERROR: Failed to activate virtual environment!
     echo.
     pause
     exit /b 1
 )
 
-echo NAOqi SDK verified successfully!
 echo.
+echo Verifying NAOqi SDK availability...
+python -c "from naoqi import ALProxy; print('NAOqi SDK: OK')" >nul 2>&1
+if errorlevel 1 (
+    echo ERROR: NAOqi SDK not properly installed in virtual environment!
+    echo.
+    echo Please run setup_python_environments.bat to reinstall dependencies:
+    echo   %CD%\setup_python_environments.bat
+    echo.
+    call "%CD%\venv_py27\Scripts\deactivate.bat"
+    pause
+    exit /b 1
+)
+
+echo OK  NAOqi SDK verified successfully!
+echo.
+
+REM Check robot connectivity
+echo Checking robot connectivity...
+ping -n 1 169.254.80.144 >nul 2>&1
+if errorlevel 1 (
+    echo WARNING: Cannot ping robot at 169.254.80.144
+    echo.
+    echo Make sure:
+    echo   1. Robot is powered on
+    echo   2. Robot is connected via LAN
+    echo   3. Your system IP is 169.254.80.100
+    echo.
+    echo Tests may fail if robot is not accessible.
+    echo.
+)
+
 echo ======================================================================
 echo Running All Tests
 echo ======================================================================
 echo.
 
 REM Run the master test script
-python2.7 run_all_tests_py27.py
+python run_all_tests_py27.py
 
 REM Capture the exit code
 set TEST_RESULT=%ERRORLEVEL%
@@ -69,5 +90,10 @@ if %TEST_RESULT% equ 0 (
 echo ======================================================================
 echo.
 
+REM Deactivate virtual environment
+echo Deactivating Python 2.7 virtual environment...
+call "%CD%\venv_py27\Scripts\deactivate.bat"
+
+echo.
 pause
 exit /b %TEST_RESULT%
