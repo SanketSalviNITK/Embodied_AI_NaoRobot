@@ -38,9 +38,10 @@ echo STEP 1: Checking Python 2.7
 echo ======================================================================
 echo.
 
-python2.7 --version >nul 2>&1
+REM Check for python command (could be aliased to 2.7)
+python --version >nul 2>&1
 if errorlevel 1 (
-    echo ERROR: Python 2.7 not found!
+    echo ERROR: Python not found!
     echo.
     echo You need to download and install Python 2.7:
     echo   URL: https://www.python.org/ftp/python/2.7.18/python-2.7.18.amd64.msi
@@ -55,9 +56,19 @@ if errorlevel 1 (
     exit /b 1
 )
 
-for /f "tokens=*" %%i in ('python2.7 --version 2^>^&1') do set PY27_VERSION=%%i
+for /f "tokens=*" %%i in ('python --version 2^>^&1') do set PY27_VERSION=%%i
 echo OK  %PY27_VERSION% found
 echo.
+
+REM Verify it's actually Python 2.7
+python -c "import sys; sys.exit(0 if sys.version_info[0] == 2 else 1)" >nul 2>&1
+if errorlevel 1 (
+    echo WARNING: 'python' command points to Python 3.x, not Python 2.7!
+    echo.
+    echo Your system has Python 3 as default.
+    echo We will still proceed, but you may need Python 2.7 for NAOqi compatibility.
+    echo.
+)
 
 REM ======================================================================
 REM STEP 2: Check Python 3.x
@@ -68,7 +79,8 @@ echo STEP 2: Checking Python 3.x
 echo ======================================================================
 echo.
 
-python --version >nul 2>&1
+REM Try python3 first
+python3 --version >nul 2>&1
 if errorlevel 1 (
     echo ERROR: Python 3.x not found!
     echo.
@@ -87,7 +99,7 @@ if errorlevel 1 (
     exit /b 1
 )
 
-for /f "tokens=*" %%i in ('python --version 2^>^&1') do set PY3_VERSION=%%i
+for /f "tokens=*" %%i in ('python3 --version 2^>^&1') do set PY3_VERSION=%%i
 echo OK  %PY3_VERSION% found
 echo.
 
@@ -115,13 +127,13 @@ if exist "%PROJECT_DIR%\venv_py27" (
 )
 
 echo Creating Python 2.7 virtual environment...
-python2.7 -m virtualenv "%PROJECT_DIR%\venv_py27"
+python -m virtualenv "%PROJECT_DIR%\venv_py27"
 
 if errorlevel 1 (
     echo ERROR: Failed to create Python 2.7 virtual environment!
     echo.
     echo Make sure virtualenv is installed:
-    echo   python2.7 -m pip install virtualenv
+    echo   python -m pip install virtualenv
     echo.
     pause
     exit /b 1
@@ -157,7 +169,7 @@ if exist "%PROJECT_DIR%\venv_py3" (
 )
 
 echo Creating Python 3 virtual environment...
-python -m venv "%PROJECT_DIR%\venv_py3"
+python3 -m venv "%PROJECT_DIR%\venv_py3"
 
 if errorlevel 1 (
     echo ERROR: Failed to create Python 3 virtual environment!

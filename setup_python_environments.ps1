@@ -36,10 +36,10 @@ Write-Host "====================================================================
 Write-Host ""
 
 try {
-    $Py27Version = python2.7 --version 2>&1
+    $Py27Version = python --version 2>&1
     Write-Host "OK  $Py27Version" -ForegroundColor Green
 } catch {
-    Write-Host "ERROR: Python 2.7 not found!" -ForegroundColor Red
+    Write-Host "ERROR: Python not found!" -ForegroundColor Red
     Write-Host ""
     Write-Host "You need to download and install Python 2.7:" -ForegroundColor Yellow
     Write-Host "  URL: https://www.python.org/ftp/python/2.7.18/python-2.7.18.amd64.msi"
@@ -54,6 +54,18 @@ try {
     exit 1
 }
 
+# Verify it's actually Python 2.7
+try {
+    python -c "import sys; sys.exit(0 if sys.version_info[0] == 2 else 1)" 2>$null
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "WARNING: 'python' command points to Python 3.x, not Python 2.7!" -ForegroundColor Yellow
+        Write-Host ""
+        Write-Host "Your system has Python 3 as default." -ForegroundColor Yellow
+        Write-Host "We will still proceed, but you may need Python 2.7 for NAOqi compatibility." -ForegroundColor Yellow
+        Write-Host ""
+    }
+} catch {}
+
 Write-Host ""
 
 # ======================================================================
@@ -66,7 +78,7 @@ Write-Host "====================================================================
 Write-Host ""
 
 try {
-    $Py3Version = python --version 2>&1
+    $Py3Version = python3 --version 2>&1
     Write-Host "OK  $Py3Version" -ForegroundColor Green
 } catch {
     Write-Host "ERROR: Python 3.x not found!" -ForegroundColor Red
@@ -114,13 +126,13 @@ if (Test-Path $Py27VenvPath) {
 }
 
 Write-Host "Creating Python 2.7 virtual environment..."
-python2.7 -m virtualenv $Py27VenvPath
+python -m virtualenv $Py27VenvPath
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "ERROR: Failed to create Python 2.7 virtual environment!" -ForegroundColor Red
     Write-Host ""
     Write-Host "Make sure virtualenv is installed:" -ForegroundColor Yellow
-    Write-Host "  python2.7 -m pip install virtualenv"
+    Write-Host "  python -m pip install virtualenv"
     Write-Host ""
     Read-Host "Press Enter to exit"
     exit 1
@@ -158,7 +170,7 @@ if (Test-Path $Py3VenvPath) {
 }
 
 Write-Host "Creating Python 3 virtual environment..."
-python -m venv $Py3VenvPath
+python3 -m venv $Py3VenvPath
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "ERROR: Failed to create Python 3 virtual environment!" -ForegroundColor Red
