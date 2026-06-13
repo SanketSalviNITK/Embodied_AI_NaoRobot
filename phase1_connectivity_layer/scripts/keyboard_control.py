@@ -75,35 +75,36 @@ def main():
             if key == 'w':  # Walk forward
                 print(">> FORWARD")
                 try:
-                    bridge.walk_forward(distance=0.3, speed=0.3)
+                    bridge.motion.setWalkTargetVelocity(0.5, 0, 0)
                 except Exception as e:
                     print("   Error: {}".format(str(e)))
 
             elif key == 's':  # Walk backward
                 print(">> BACKWARD")
                 try:
-                    bridge.walk_backward(distance=0.3, speed=0.3)
+                    bridge.motion.setWalkTargetVelocity(-0.5, 0, 0)
                 except Exception as e:
                     print("   Error: {}".format(str(e)))
 
             elif key == 'a':  # Turn left
                 print(">> TURN LEFT")
                 try:
-                    bridge.turn_left(angle=0.3, speed=0.3)
+                    bridge.motion.setWalkTargetVelocity(0, 0, 0.5)
                 except Exception as e:
                     print("   Error: {}".format(str(e)))
 
             elif key == 'd':  # Turn right
                 print(">> TURN RIGHT")
                 try:
-                    bridge.turn_right(angle=0.3, speed=0.3)
+                    bridge.motion.setWalkTargetVelocity(0, 0, -0.5)
                 except Exception as e:
                     print("   Error: {}".format(str(e)))
 
             elif key == ' ':  # Stop
                 print(">> STOP")
                 try:
-                    bridge.stop()
+                    bridge.motion.stopWalk()
+                    bridge.motion.stopMove()
                 except Exception as e:
                     print("   Error: {}".format(str(e)))
 
