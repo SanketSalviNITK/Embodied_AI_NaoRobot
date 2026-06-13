@@ -207,7 +207,8 @@ class MotionBridge(object):
             self.motion.angleInterpolation(
                 [joint_name],
                 [angle_rad],
-                [1.0 / speed] if speed > 0 else [1.0]
+                [1.0 / speed] if speed > 0 else [1.0],
+                True
             )
             return True
         except Exception as e:
@@ -237,7 +238,8 @@ class MotionBridge(object):
             self.motion.angleInterpolation(
                 joint_names,
                 angles,
-                [1.0 / speed] * len(joint_names) if speed > 0 else [1.0] * len(joint_names)
+                [1.0 / speed] * len(joint_names) if speed > 0 else [1.0] * len(joint_names),
+                True
             )
             return True
         except Exception as e:
