@@ -22,7 +22,19 @@ def run_test(test_number, test_name, test_file):
     print("=" * 70 + "\n")
 
     try:
-        result = subprocess.call([sys.executable, test_file])
+        # Run test and capture output
+        process = subprocess.Popen(
+            [sys.executable, test_file],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            universal_newlines=True
+        )
+        output, _ = process.communicate()
+        result = process.returncode
+
+        # Print the output
+        print(output)
+
         success = result == 0
 
         if success:
@@ -30,11 +42,12 @@ def run_test(test_number, test_name, test_file):
         else:
             print("\nERROR: Test {0} FAILED".format(test_number))
 
-        return success, test_name
+        return success, test_name, output
 
     except Exception as e:
-        print("\nERROR: Test {0} failed with error: {1}".format(test_number, str(e)))
-        return False, test_name
+        error_msg = "ERROR: Test {0} failed with error: {1}".format(test_number, str(e))
+        print("\n" + error_msg)
+        return False, test_name, error_msg
 
 def main():
     """Run all tests"""
@@ -61,12 +74,14 @@ def main():
     ]
 
     results = []
+    test_outputs = []
     start_time = time.time()
 
     # Run all tests
     for test_number, test_name, test_file in tests:
-        success, name = run_test(test_number, test_name, test_file)
+        success, name, output = run_test(test_number, test_name, test_file)
         results.append((test_number, name, success))
+        test_outputs.append((test_number, name, output))
 
         # Add delay between tests
         if test_number < len(tests):
@@ -144,7 +159,16 @@ def main():
             if overall_success:
                 f.write("OK  ALL TESTS PASSED - Ready for Phase 0\n")
             else:
-                f.write("WARNING {0} test(s) failed - See details above\n".format(failed))
+                f.write("WARNING {0} test(s) failed - See details below\n\n".format(failed))
+                f.write("FAILED TEST DETAILS:\n")
+                f.write("=" * 70 + "\n\n")
+                for test_num, test_name, output in test_outputs:
+                    test_result = next((r for r in results if r[0] == test_num), None)
+                    if test_result and not test_result[2]:
+                        f.write("TEST {0}: {1}\n".format(test_num, test_name))
+                        f.write("-" * 70 + "\n")
+                        f.write(output)
+                        f.write("\n\n")
 
         print("OK  Results saved to: {0}\n".format(summary_file))
     except Exception as e:
