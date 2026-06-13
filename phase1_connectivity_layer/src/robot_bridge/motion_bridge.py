@@ -112,7 +112,7 @@ class MotionBridge(object):
             distance: Distance in meters (default 0.5)
             speed: Speed 0-1 (default 0.5)
         """
-        return self._walk(x=distance, y=0, theta=0, speed=speed)
+        return self._walk(y=distance, x=0, theta=0, speed=speed)
 
     def walk_backward(self, distance=0.5, speed=0.5):
         """Walk backward
@@ -121,7 +121,7 @@ class MotionBridge(object):
             distance: Distance in meters (default 0.5)
             speed: Speed 0-1 (default 0.5)
         """
-        return self._walk(x=-distance, y=0, theta=0, speed=speed)
+        return self._walk(y=-distance, x=0, theta=0, speed=speed)
 
     def walk_left(self, distance=0.3, speed=0.5):
         """Walk left
@@ -130,7 +130,7 @@ class MotionBridge(object):
             distance: Distance in meters (default 0.3)
             speed: Speed 0-1 (default 0.5)
         """
-        return self._walk(x=0, y=distance, theta=0, speed=speed)
+        return self._walk(x=-distance, y=0, theta=0, speed=speed)
 
     def walk_right(self, distance=0.3, speed=0.5):
         """Walk right
@@ -139,7 +139,7 @@ class MotionBridge(object):
             distance: Distance in meters (default 0.3)
             speed: Speed 0-1 (default 0.5)
         """
-        return self._walk(x=0, y=-distance, theta=0, speed=speed)
+        return self._walk(x=distance, y=0, theta=0, speed=speed)
 
     def turn_left(self, angle=0.5, speed=0.5):
         """Turn left (counterclockwise)
