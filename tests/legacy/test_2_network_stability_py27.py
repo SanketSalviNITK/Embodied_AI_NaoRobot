@@ -11,7 +11,7 @@ import time
 import sys
 import platform
 
-def test_ping_stability(ip_address="169.254.80.144", count=15):
+def test_ping_stability(ip_address="169.254.175.171", count=15):
     """Test ping latency and stability"""
 
     print("=" * 60)
@@ -174,7 +174,7 @@ def test_ping_stability(ip_address="169.254.80.144", count=15):
         print("ERROR: NETWORK TEST FAILED!")
         print("\nTroubleshooting:")
         print("  - Check network cable connection")
-        print("  - Verify robot IP: 169.254.80.144")
+        print("  - Verify robot IP: 169.254.175.171")
         print("  - Check for network congestion")
         print("  - Ensure no firewall blocking ICMP")
     print("=" * 60)

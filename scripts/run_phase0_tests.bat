@@ -22,7 +22,7 @@ echo.
 
 REM Check robot connectivity
 echo Checking robot connectivity...
-python -c "from naoqi import ALProxy; ALProxy('ALMotion', '169.254.80.144', 9559); print('OK  Robot is reachable')" 2>nul
+python -c "from naoqi import ALProxy; ALProxy('ALMotion', '169.254.175.171', 9559); print('OK  Robot is reachable')" 2>nul
 
 if errorlevel 1 (
     echo WARNING: Robot might not be reachable
@@ -31,7 +31,7 @@ if errorlevel 1 (
 )
 
 REM Create results directory
-if not exist "phase0_results" mkdir phase0_results
+if not exist "..\results\phase0_results" mkdir ..\results\phase0_results
 
 REM Run all Phase 0 tests
 set TOTAL_TESTS=5
@@ -45,7 +45,7 @@ echo.
 
 REM Test 1: Joint Control
 echo [1/5] Running Joint Control Test...
-python test_phase0_joint_control.py > phase0_results\test_1_joint_control.log 2>&1
+python ..\tests\phase0\test_phase0_joint_control.py > ..\results\phase0_results\test_1_joint_control.log 2>&1
 if errorlevel 1 (
     echo       FAILED
 ) else (
@@ -56,7 +56,7 @@ echo.
 
 REM Test 2: Motion & Walking
 echo [2/5] Running Motion Test...
-python test_phase0_motion.py > phase0_results\test_2_motion.log 2>&1
+python ..\tests\phase0\test_phase0_motion.py > ..\results\phase0_results\test_2_motion.log 2>&1
 if errorlevel 1 (
     echo       FAILED
 ) else (
@@ -67,7 +67,7 @@ echo.
 
 REM Test 3: Detailed Sensors
 echo [3/5] Running Sensor Analysis Test...
-python test_phase0_sensors_detailed.py > phase0_results\test_3_sensors.log 2>&1
+python ..\tests\phase0\test_phase0_sensors_detailed.py > ..\results\phase0_results\test_3_sensors.log 2>&1
 if errorlevel 1 (
     echo       FAILED
 ) else (
@@ -78,7 +78,7 @@ echo.
 
 REM Test 4: Audio & Speech
 echo [4/5] Running Audio Test...
-python test_phase0_audio.py > phase0_results\test_4_audio.log 2>&1
+python ..\tests\phase0\test_phase0_audio.py > ..\results\phase0_results\test_4_audio.log 2>&1
 if errorlevel 1 (
     echo       FAILED
 ) else (
@@ -89,7 +89,7 @@ echo.
 
 REM Test 5: LED Control
 echo [5/5] Running LED Test...
-python test_phase0_leds.py > phase0_results\test_5_leds.log 2>&1
+python ..\tests\phase0\test_phase0_leds.py > ..\results\phase0_results\test_5_leds.log 2>&1
 if errorlevel 1 (
     echo       FAILED
 ) else (
@@ -117,7 +117,7 @@ if %PASSED_TESTS% equ %TOTAL_TESTS% (
 )
 
 echo.
-echo Detailed logs saved in: phase0_results\
+echo Detailed logs saved in: ..\results\phase0_results\
 echo.
 echo Test Results:
 echo   - test_1_joint_control.log

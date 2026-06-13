@@ -12,7 +12,7 @@ import time
 def test_naoqi_connection():
     """Test basic connection to NAOqi"""
 
-    robot_ip = "169.254.80.144"
+    robot_ip = "169.254.175.171"
     robot_port = 9559
 
     print("=" * 60)
@@ -126,9 +126,9 @@ def test_naoqi_connection():
         print("\nChecklist:")
         print("  - Is the robot powered on?")
         print("  - Is the robot connected to the network?")
-        print("  - Is the IP address correct? (current: 169.254.80.144)")
+        print("  - Is the IP address correct? (current: 169.254.175.171)")
         print("  - Is the port correct? (current: 9559)")
-        print("  - Can you ping the robot? (run: ping 169.254.80.144)")
+        print("  - Can you ping the robot? (run: ping 169.254.175.171)")
         return False
 
 if __name__ == "__main__":

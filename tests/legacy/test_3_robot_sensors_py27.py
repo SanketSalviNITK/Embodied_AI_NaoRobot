@@ -12,7 +12,7 @@ import time
 def test_sensors():
     """Test all robot sensors"""
 
-    robot_ip = "169.254.80.144"
+    robot_ip = "169.254.175.171"
     robot_port = 9559
 
     print("=" * 60)

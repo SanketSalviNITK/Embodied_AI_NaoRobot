@@ -13,7 +13,7 @@ import time
 def test_leds():
     """Test LED control and effects"""
 
-    robot_ip = "169.254.80.144"
+    robot_ip = "169.254.175.171"
     robot_port = 9559
 
     print("=" * 70)
