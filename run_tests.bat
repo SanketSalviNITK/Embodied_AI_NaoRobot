@@ -24,17 +24,22 @@ if not exist "%CD%\venv_py27" (
 echo Activating Python 2.7 virtual environment...
 call "%CD%\venv_py27\Scripts\activate.bat"
 
-if errorlevel 1 (
+REM Verify activation by checking if python exists in venv
+if not exist "%CD%\venv_py27\Scripts\python.exe" (
     echo ERROR: Failed to activate virtual environment!
+    echo.
+    echo Python executable not found in venv_py27
     echo.
     pause
     exit /b 1
 )
 
+echo OK  Virtual environment activated successfully!
 echo.
 echo Verifying NAOqi SDK availability...
-python -c "from naoqi import ALProxy; print('NAOqi SDK: OK')" >nul 2>&1
+python -c "from naoqi import ALProxy; print('NAOqi SDK: OK')"
 if errorlevel 1 (
+    echo.
     echo ERROR: NAOqi SDK not properly installed in virtual environment!
     echo.
     echo Please run setup_python_environments.bat to reinstall dependencies:
@@ -60,6 +65,9 @@ if errorlevel 1 (
     echo   3. Your system IP is 169.254.80.100
     echo.
     echo Tests may fail if robot is not accessible.
+    echo.
+) else (
+    echo OK  Robot is reachable at 169.254.80.144
     echo.
 )
 
