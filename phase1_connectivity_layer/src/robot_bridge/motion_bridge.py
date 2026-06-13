@@ -203,7 +203,7 @@ class MotionBridge(object):
             speed: Motion speed 0-1 (default 0.1)
         """
         try:
-            self.motion.setStiffnessesAbsolute([joint_name], [1.0])
+            self.motion.setStiffnesses([joint_name], [1.0])
             self.motion.angleInterpolation(
                 [joint_name],
                 [angle_rad],
@@ -231,7 +231,7 @@ class MotionBridge(object):
             angles = list(joint_angles.values())
 
             # Enable stiffness for all joints
-            self.motion.setStiffnessesAbsolute(joint_names, [1.0] * len(joint_names))
+            self.motion.setStiffnesses(joint_names, [1.0] * len(joint_names))
 
             # Move to angles
             self.motion.angleInterpolation(
@@ -264,7 +264,7 @@ class MotionBridge(object):
             value: Stiffness 0-1 (0=relaxed, 1=stiff)
         """
         try:
-            self.motion.setStiffnessesAbsolute(self.JOINTS, [value] * len(self.JOINTS))
+            self.motion.setStiffnesses(self.JOINTS, [value] * len(self.JOINTS))
             return True
         except Exception as e:
             raise Exception("Failed to set stiffness: {}".format(str(e)))
