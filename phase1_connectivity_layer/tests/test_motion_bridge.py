@@ -12,11 +12,33 @@ import time
 # Add src directory to path so we can import robot_bridge
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
+# Global TTS proxy
+tts_proxy = None
+
+def init_tts():
+    """Initialize text-to-speech"""
+    global tts_proxy
+    try:
+        from naoqi import ALProxy
+        tts_proxy = ALProxy('ALTextToSpeech', '192.168.137.87', 9559)
+    except Exception:
+        tts_proxy = None
+
+def robot_say(text):
+    """Make robot say something"""
+    global tts_proxy
+    if tts_proxy:
+        try:
+            tts_proxy.say(text)
+        except Exception:
+            pass
+
 
 def test_connection():
     """Test: Connect to robot via WiFi"""
     print("\n[TEST 1] WiFi Connection Test")
     print("-" * 70)
+    robot_say("Testing WiFi connection")
 
     try:
         from robot_bridge import MotionBridge
@@ -43,6 +65,7 @@ def test_postures():
     """Test: Posture control"""
     print("\n[TEST 2] Posture Control Test")
     print("-" * 70)
+    robot_say("Testing postures. Stand, sit, and crouch")
 
     try:
         from robot_bridge import MotionBridge
@@ -74,6 +97,7 @@ def test_walking():
     """Test: Walking"""
     print("\n[TEST 3] Walking Test")
     print("-" * 70)
+    robot_say("Testing walking. I will walk forward, turn, and return")
 
     try:
         from robot_bridge import MotionBridge
@@ -111,6 +135,7 @@ def test_joint_control():
     """Test: Joint control"""
     print("\n[TEST 4] Joint Control Test")
     print("-" * 70)
+    robot_say("Testing joint control. Moving my head")
 
     try:
         from robot_bridge import MotionBridge
@@ -153,6 +178,7 @@ def test_stiffness():
     """Test: Stiffness control"""
     print("\n[TEST 5] Stiffness Control Test")
     print("-" * 70)
+    robot_say("Testing stiffness control. I will stiffen and relax my joints")
 
     try:
         from robot_bridge import MotionBridge
@@ -183,6 +209,7 @@ def test_status():
     """Test: Robot status"""
     print("\n[TEST 6] Robot Status Test")
     print("-" * 70)
+    robot_say("Testing robot status")
 
     try:
         from robot_bridge import MotionBridge
@@ -211,6 +238,15 @@ def main():
     print("=" * 70)
     print("\nTesting over WiFi connection: 192.168.137.87")
     print("=" * 70)
+
+    # Initialize text-to-speech
+    print("\nInitializing text-to-speech...")
+    init_tts()
+    if tts_proxy:
+        print("OK  Text-to-speech initialized")
+        robot_say("Starting motion bridge tests")
+    else:
+        print("WARNING: Text-to-speech not available")
 
     tests = [
         ('WiFi Connection', test_connection),
@@ -251,9 +287,11 @@ def main():
 
     if failed == 0:
         print("\nOK  All motion bridge tests passed!")
+        robot_say("All tests passed successfully")
         return 0
     else:
         print("\nERROR: {} test(s) failed".format(failed))
+        robot_say("Some tests failed")
         return 1
 
 
