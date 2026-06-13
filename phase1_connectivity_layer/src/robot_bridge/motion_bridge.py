@@ -106,40 +106,40 @@ class MotionBridge(object):
     # ========== WALKING ==========
 
     def walk_forward(self, distance=0.5, speed=0.5):
-        """Walk forward
+        """Walk forward (along robot's forward direction)
 
         Args:
             distance: Distance in meters (default 0.5)
             speed: Speed 0-1 (default 0.5)
         """
-        return self._walk(y=distance, x=0, theta=0, speed=speed)
+        return self._walk(x=distance, y=0, theta=0, speed=speed)
 
     def walk_backward(self, distance=0.5, speed=0.5):
-        """Walk backward
+        """Walk backward (opposite to robot's forward direction)
 
         Args:
             distance: Distance in meters (default 0.5)
-            speed: Speed 0-1 (default 0.5)
-        """
-        return self._walk(y=-distance, x=0, theta=0, speed=speed)
-
-    def walk_left(self, distance=0.3, speed=0.5):
-        """Walk left
-
-        Args:
-            distance: Distance in meters (default 0.3)
             speed: Speed 0-1 (default 0.5)
         """
         return self._walk(x=-distance, y=0, theta=0, speed=speed)
 
-    def walk_right(self, distance=0.3, speed=0.5):
-        """Walk right
+    def walk_left(self, distance=0.3, speed=0.5):
+        """Walk left (from robot's perspective)
 
         Args:
             distance: Distance in meters (default 0.3)
             speed: Speed 0-1 (default 0.5)
         """
-        return self._walk(x=distance, y=0, theta=0, speed=speed)
+        return self._walk(x=0, y=distance, theta=0, speed=speed)
+
+    def walk_right(self, distance=0.3, speed=0.5):
+        """Walk right (from robot's perspective)
+
+        Args:
+            distance: Distance in meters (default 0.3)
+            speed: Speed 0-1 (default 0.5)
+        """
+        return self._walk(x=0, y=-distance, theta=0, speed=speed)
 
     def turn_left(self, angle=0.5, speed=0.5):
         """Turn left (counterclockwise)
