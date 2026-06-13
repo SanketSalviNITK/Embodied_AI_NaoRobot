@@ -71,6 +71,11 @@ class DiagnosticLogger(object):
         self.log_file = os.path.join(self.log_dir, 'diagnostic_log_{}.csv'.format(timestamp))
         self.command_log_file = os.path.join(self.log_dir, 'command_log_{}.txt'.format(timestamp))
 
+        # Safety state
+        self.is_executing = False
+        self.last_command_time = 0
+        self.min_command_interval = 0.2  # Prevent rapid commands
+
         # CSV headers
         self.csv_headers = ['timestamp', 'time_sec', 'command'] + \
                           self.all_joints + \
@@ -237,17 +242,30 @@ class DiagnosticLogger(object):
             print("Log error: {}".format(str(e)))
 
     def execute_command(self, cmd, duration=2.0):
-        """Execute command and log"""
+        """Execute command and log with safety blocking"""
+        # Prevent concurrent commands (safety)
+        if self.is_executing:
+            print("\r[BLOCKED] Previous command still executing...", end='')
+            sys.stdout.flush()
+            return False
+
+        if time.time() - self.last_command_time < self.min_command_interval:
+            return False
+
+        self.is_executing = True
         self.current_command = cmd
         self.is_logging = True
+        self.last_command_time = time.time()
 
-        print("\n>> {} (logging...)".format(cmd))
+        print("\n>> EXECUTING: {} (logging 20 samples/sec)".format(cmd))
 
         # Log command
         with open(self.command_log_file, 'a') as f:
             f.write("[{:.2f}] COMMAND: {}\n".format(time.time() - self.start_time, cmd))
 
         start = time.time()
+        samples = 0
+        max_values = {}
 
         try:
             if cmd == "FORWARD":
@@ -269,6 +287,17 @@ class DiagnosticLogger(object):
             # Log samples during movement
             while time.time() - start < duration:
                 self.log_sample()
+
+                # Track key metrics for summary
+                data = self.get_all_sensor_data()
+                if data.get('IsMoving', 0):
+                    max_values['IsMoving'] = 1
+                if data.get('StepDetected', 0):
+                    max_values['StepDetected'] = 1
+                if abs(data.get('FSR_BalancePoint', 0)) > max_values.get('MaxImbalance', 0):
+                    max_values['MaxImbalance'] = abs(data.get('FSR_BalancePoint', 0))
+
+                samples += 1
                 time.sleep(0.05)  # 20 Hz sampling
 
             # Stop movement
@@ -277,17 +306,36 @@ class DiagnosticLogger(object):
 
             # Log stop
             with open(self.command_log_file, 'a') as f:
-                f.write("[{:.2f}] STOPPED\n".format(time.time() - self.start_time))
+                elapsed = time.time() - self.start_time
+                f.write("[{:.2f}] STOPPED\n".format(elapsed))
+                f.write("  Samples: {}\n".format(samples))
+                f.write("  Movement: {}\n".format("Yes" if max_values.get('IsMoving') else "No"))
+                f.write("  Steps: {}\n".format("Yes" if max_values.get('StepDetected') else "No"))
+                f.write("  Max Imbalance: {:.3f}\n\n".format(max_values.get('MaxImbalance', 0)))
+
+            # Print summary
+            print("\n   [RESULTS]")
+            print("   - Samples logged: {}".format(samples))
+            print("   - Movement detected: {}".format("YES ✓" if max_values.get('IsMoving') else "NO ✗"))
+            print("   - Steps detected: {}".format("YES ✓" if max_values.get('StepDetected') else "NO ✗"))
+            print("   - Max imbalance: {:.3f} {}".format(
+                max_values.get('MaxImbalance', 0),
+                ("(stable)" if max_values.get('MaxImbalance', 0) < 0.5 else "(WARNING: unstable)")
+            ))
+
+            return True
 
         except Exception as e:
             print("Error: {}".format(str(e)))
             self.motion.stopWalk()
             self.motion.stopMove()
+            return False
 
         finally:
+            self.is_executing = False
             self.is_logging = False
             self.current_command = ""
-            time.sleep(0.5)
+            time.sleep(0.3)
 
     def run(self):
         """Main control loop"""
