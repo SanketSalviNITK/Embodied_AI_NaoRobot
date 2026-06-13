@@ -14,34 +14,28 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 
 def test_connection():
-    """Test: Connect to robot"""
-    print("\n[TEST 1] Connection Test")
+    """Test: Connect to robot via WiFi"""
+    print("\n[TEST 1] WiFi Connection Test")
     print("-" * 70)
 
     try:
         from robot_bridge import MotionBridge
 
-        # Try WiFi first, fall back to LAN
-        ips = ['192.168.137.87', '169.254.175.171']
+        # WiFi only
+        wifi_ip = '192.168.137.87'
 
-        bridge = None
-        for ip in ips:
-            try:
-                print("Attempting connection to {}...".format(ip))
-                bridge = MotionBridge(ip=ip)
-                print("OK  Connected to robot at {}".format(ip))
-                break
-            except Exception:
-                continue
-
-        if bridge is None:
-            print("ERROR: Could not connect to robot")
-            return False
+        print("Connecting to robot via WiFi at {}...".format(wifi_ip))
+        bridge = MotionBridge(ip=wifi_ip)
+        print("OK  Connected to robot via WiFi at {}".format(wifi_ip))
 
         return True
 
     except Exception as e:
-        print("ERROR: {}".format(str(e)))
+        print("ERROR: Failed to connect via WiFi: {}".format(str(e)))
+        print("\nTroubleshooting:")
+        print("  1. Ping robot: ping 192.168.137.87")
+        print("  2. Verify WiFi is connected")
+        print("  3. Check robot is powered on")
         return False
 
 
@@ -213,11 +207,13 @@ def test_status():
 def main():
     """Run all tests"""
     print("\n" + "=" * 70)
-    print("MOTION BRIDGE TEST SUITE")
+    print("MOTION BRIDGE TEST SUITE - WiFi ONLY")
+    print("=" * 70)
+    print("\nTesting over WiFi connection: 192.168.137.87")
     print("=" * 70)
 
     tests = [
-        ('Connection', test_connection),
+        ('WiFi Connection', test_connection),
         ('Postures', test_postures),
         ('Walking', test_walking),
         ('Joint Control', test_joint_control),
