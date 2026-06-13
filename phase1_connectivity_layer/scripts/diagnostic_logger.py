@@ -75,7 +75,14 @@ class DiagnosticLogger(object):
         self.csv_headers = ['timestamp', 'time_sec', 'command'] + \
                           self.all_joints + \
                           ['FSR_LFL', 'FSR_LFR', 'FSR_LRL', 'FSR_LRR', 'FSR_RFL', 'FSR_RFR', 'FSR_RRL', 'FSR_RRR'] + \
-                          ['IMU_AccelX', 'IMU_AccelY', 'IMU_AccelZ', 'IMU_GyroX', 'IMU_GyroY', 'IMU_GyroZ']
+                          ['IMU_AccelX', 'IMU_AccelY', 'IMU_AccelZ', 'IMU_GyroX', 'IMU_GyroY', 'IMU_GyroZ'] + \
+                          ['FSR_TotalLeft', 'FSR_TotalRight', 'FSR_BalancePoint', 'IsMoving', 'IsBalanced',
+                           'LHipPitch_Vel', 'RHipPitch_Vel', 'LKneePitch_Vel', 'RKneePitch_Vel',
+                           'LeftFootLift', 'RightFootLift', 'StepDetected', 'AccelMagnitude']
+
+        # Previous joint angles for velocity calculation
+        self.prev_angles = {joint: 0.0 for joint in self.all_joints}
+        self.prev_timestamp = time.time()
 
         # Initialize CSV file
         with open(self.log_file, 'w') as f:
@@ -91,8 +98,9 @@ class DiagnosticLogger(object):
         print("Command log: {}".format(self.command_log_file))
 
     def get_all_sensor_data(self):
-        """Get all sensor data"""
+        """Get all sensor data with derived metrics"""
         data = {}
+        current_time = time.time()
 
         # Joint angles
         try:
@@ -104,8 +112,8 @@ class DiagnosticLogger(object):
                 data[joint] = 0.0
 
         # FSR sensors
+        fsr_values = []
         try:
-            fsr_values = []
             for key in self.fsr_keys:
                 val = self.memory.getData(key)
                 fsr_values.append(val if val else 0.0)
@@ -114,15 +122,70 @@ class DiagnosticLogger(object):
         except Exception:
             for i in range(8):
                 data['FSR_{}'.format(i)] = 0.0
+                fsr_values.append(0.0)
 
         # IMU sensors
+        imu_values = {}
         try:
             for name, key in self.imu_keys.items():
                 val = self.memory.getData(key)
-                data['IMU_{}'.format(name)] = val if val else 0.0
+                imu_values[name] = val if val else 0.0
+                data['IMU_{}'.format(name)] = imu_values[name]
         except Exception:
             for name in self.imu_keys.keys():
+                imu_values[name] = 0.0
                 data['IMU_{}'.format(name)] = 0.0
+
+        # ===== DERIVED METRICS FOR DIAGNOSIS =====
+
+        # FSR balance analysis
+        left_total = sum(fsr_values[0:4])  # Left foot (4 sensors)
+        right_total = sum(fsr_values[4:8])  # Right foot (4 sensors)
+        data['FSR_TotalLeft'] = left_total
+        data['FSR_TotalRight'] = right_total
+
+        # Balance point (center of pressure)
+        total_pressure = left_total + right_total
+        if total_pressure > 0:
+            balance_point = (left_total - right_total) / total_pressure  # -1 (left) to 1 (right)
+        else:
+            balance_point = 0.0
+        data['FSR_BalancePoint'] = balance_point
+
+        # Is robot moving (based on FSR change)?
+        data['IsMoving'] = 1 if (left_total > 0.1 or right_total > 0.1) else 0
+
+        # Is robot balanced (roughly equal pressure)?
+        pressure_diff = abs(left_total - right_total)
+        data['IsBalanced'] = 1 if pressure_diff < 1.0 else 0
+
+        # Joint velocities (to detect if joints are actually moving)
+        dt = current_time - self.prev_timestamp if self.prev_timestamp else 0.05
+        if dt > 0:
+            data['LHipPitch_Vel'] = (data.get('LHipPitch', 0) - self.prev_angles.get('LHipPitch', 0)) / dt
+            data['RHipPitch_Vel'] = (data.get('RHipPitch', 0) - self.prev_angles.get('RHipPitch', 0)) / dt
+            data['LKneePitch_Vel'] = (data.get('LKneePitch', 0) - self.prev_angles.get('LKneePitch', 0)) / dt
+            data['RKneePitch_Vel'] = (data.get('RKneePitch', 0) - self.prev_angles.get('RKneePitch', 0)) / dt
+        else:
+            data['LHipPitch_Vel'] = 0.0
+            data['RHipPitch_Vel'] = 0.0
+            data['LKneePitch_Vel'] = 0.0
+            data['RKneePitch_Vel'] = 0.0
+
+        # Step detection (knee bend = leg lifting)
+        data['LeftFootLift'] = 1 if data.get('LKneePitch', 0) > 0.1 else 0
+        data['RightFootLift'] = 1 if data.get('RKneePitch', 0) > 0.1 else 0
+        data['StepDetected'] = data['LeftFootLift'] or data['RightFootLift']
+
+        # Acceleration magnitude (overall movement)
+        accel_x = imu_values.get('accel_x', 0)
+        accel_y = imu_values.get('accel_y', 0)
+        accel_z = imu_values.get('accel_z', 0)
+        data['AccelMagnitude'] = (accel_x**2 + accel_y**2 + accel_z**2) ** 0.5
+
+        # Update for next iteration
+        self.prev_angles = {joint: data.get(joint, 0) for joint in self.all_joints}
+        self.prev_timestamp = current_time
 
         return data
 
@@ -137,12 +200,33 @@ class DiagnosticLogger(object):
 
             # Prepare row
             row = [datetime.now().isoformat(), elapsed, self.current_command]
+
+            # Joint angles
             for header in self.all_joints:
                 row.append(data.get(header, 0.0))
+
+            # FSR values
             for i in range(8):
                 row.append(data.get('FSR_{}'.format(i), 0.0))
+
+            # IMU values
             for name in ['AccelX', 'AccelY', 'AccelZ', 'GyroX', 'GyroY', 'GyroZ']:
                 row.append(data.get('IMU_{}'.format(name), 0.0))
+
+            # Derived metrics (DIAGNOSTICS!)
+            row.append(data.get('FSR_TotalLeft', 0.0))
+            row.append(data.get('FSR_TotalRight', 0.0))
+            row.append(data.get('FSR_BalancePoint', 0.0))
+            row.append(data.get('IsMoving', 0))
+            row.append(data.get('IsBalanced', 0))
+            row.append(data.get('LHipPitch_Vel', 0.0))
+            row.append(data.get('RHipPitch_Vel', 0.0))
+            row.append(data.get('LKneePitch_Vel', 0.0))
+            row.append(data.get('RKneePitch_Vel', 0.0))
+            row.append(data.get('LeftFootLift', 0))
+            row.append(data.get('RightFootLift', 0))
+            row.append(data.get('StepDetected', 0))
+            row.append(data.get('AccelMagnitude', 0.0))
 
             # Write to CSV
             with open(self.log_file, 'a') as f:
