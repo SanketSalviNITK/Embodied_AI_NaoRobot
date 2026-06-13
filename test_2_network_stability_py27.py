@@ -8,7 +8,6 @@ Compatible with NAOqi 2.8.6.23
 
 import subprocess
 import time
-import statistics
 import sys
 import platform
 
