@@ -5,6 +5,8 @@ Safe Keyboard Control for NAO Robot
 With motor encoder feedback and movement blocking
 """
 
+from __future__ import print_function
+
 import sys
 import os
 import time
