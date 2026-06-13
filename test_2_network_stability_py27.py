@@ -36,7 +36,8 @@ def test_ping_stability(ip_address="169.254.80.144", count=15):
             result = subprocess.Popen(
                 ping_cmd,
                 stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE
+                stderr=subprocess.PIPE,
+                universal_newlines=True
             )
             stdout, stderr = result.communicate()
 
