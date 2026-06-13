@@ -352,7 +352,7 @@ echo ======================================================================
 echo.
 echo 1. Run Phase 0 Tests (Python 2.7):
 echo    cd %PROJECT_DIR%
-echo    run_tests.bat
+echo    scripts\run_phase0_tests.bat
 echo.
 echo 2. Later - Activate Python 3 environment:
 echo    cd %PROJECT_DIR%
